@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: marketplace
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./todo-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: root
+      DB_DATABASE: marketplace
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./todo-frontend
+    ports:
+      - "3001:80"
+    env_file:
+      - ./todo-frontend/.env
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:
